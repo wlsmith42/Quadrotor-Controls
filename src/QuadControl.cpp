@@ -195,9 +195,22 @@ float QuadControl::AltitudeControl(float posZCmd, float velZCmd, float posZ, flo
   float thrust = 0;
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+  float z_err = posZCmd - posZ;
+  float p = kpPosZ * z_err;
+    
+  float z_dot_err = velZCmd - velZ;
+  integratedAltitudeError += z_err * dt;
 
-
-
+  float d = kpVelZ * z_dot_err + velZ;
+  float i = KiPosZ * integratedAltitudeError;
+  float b_z = R(2,2);
+  
+  float u_1_bar = p + i + d + accelZCmd;
+  
+  float acc = (u_1_bar - CONST_GRAVITY) / b_z;
+  
+  thrust = -mass * CONSTRAIN(acc, -maxAscentRate/dt, maxAscentRate/dt);
+    
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return thrust;
@@ -234,7 +247,30 @@ V3F QuadControl::LateralPositionControl(V3F posCmd, V3F velCmd, V3F pos, V3F vel
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
 
-
+  
+  V3F kpPos;
+  kpPos.x = kpPosXY;
+  kpPos.y = kpPosXY;
+  kpPos.z = 0.f;
+     
+  V3F kpVel;
+  kpVel.x = kpVelXY;
+  kpVel.y = kpVelXY;
+  kpVel.z = 0.f;
+  
+  V3F maxVelCmd;
+  if(velCmd.mag() > maxSpeedXY) {
+    maxVelCmd = velCmd.norm() * maxSpeedXY;
+  }
+  else {
+    maxVelCmd = velCmd;
+  }
+    
+  accelCmd = kpPos * (posCmd - pos) + kpVel * (maxVelCmd - vel) + accelCmd;
+    
+  if(accelCmd.mag() > maxAccelXY) {
+    accelCmd = accelCmd.norm() * maxAccelXY;
+  }
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
@@ -256,7 +292,22 @@ float QuadControl::YawControl(float yawCmd, float yaw)
 
   float yawRateCmd=0;
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
+  float yaw_err = 0;
+  if(yawCmd > 0) {
+    yaw_err = fmodf(yawCmd, 2*F_PI) - yaw;
+  }
+  else {
+    yaw_err = -fmodf(yawCmd, 2*F_PI) -yaw;
+  }
+  
+  if(yaw_err > F_PI) {
+    yaw_err -= 2*F_PI;
+  }
+  if(yaw_err < -F_PI) {
+    yaw_err += 2*F_PI;
+  }
+  
+  yawRateCmd = kpYaw * yaw_err;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
