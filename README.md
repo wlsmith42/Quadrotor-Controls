@@ -6,8 +6,8 @@
 
  - [Development environment setup](#development-environment-setup)
  - [Simulator walkthrough](#simulator-walkthrough)
-- [Project Rubric] (#project-rubric)
-- [Future Work] (#future-work)
+ - [Project Rubric] (#project-rubric)
+ - [Future Work] (#future-work)
 
 ## Development Environment Setup ##
 
@@ -128,7 +128,7 @@ The following equation was also applied to allow the output to be in terms of ro
 <img src="images/roll_pitch_from_b_to_pq.gif" width="250"/>
 </p>
 
-The implementaion of these equations can be seen in the code block below:
+The implementation of these equations can be seen in the code block below:
 
 ``` C++
 if(collThrustCmd > 0) {
@@ -159,75 +159,75 @@ The following equations were used to implement to `altitude` controller:
 <img src="images/altitude_eq.gif" width="270"/>
 </p>
 
-The `altitude` controller is a PD controller to control the acceleration, or thrust, needed to adjust the quad's altitude. The implemention can be seen in the code block below:
+The `altitude` controller is a PD controller to control the acceleration, or thrust, needed to adjust the quad's altitude. The implementation can be seen in the code block below:
 
 ``` C++
-  float z_err = posZCmd - posZ;
-  float p = kpPosZ * z_err;
+float z_err = posZCmd - posZ;
+float p = kpPosZ * z_err;
     
-  float z_dot_err = velZCmd - velZ;
-  integratedAltitudeError += z_err * dt;
+float z_dot_err = velZCmd - velZ;
+integratedAltitudeError += z_err * dt;
 
-  float d = kpVelZ * z_dot_err + velZ;
-  float i = KiPosZ * integratedAltitudeError;
-  float b_z = R(2,2);
+float d = kpVelZ * z_dot_err + velZ;
+float i = KiPosZ * integratedAltitudeError;
+float b_z = R(2,2);
   
-  float u_1_bar = p + i + d + accelZCmd;
+float u_1_bar = p + i + d + accelZCmd;
   
-  float acc = (u_1_bar - CONST_GRAVITY) / b_z;
+float acc = (u_1_bar - CONST_GRAVITY) / b_z;
   
-  thrust = -mass * CONSTRAIN(acc, -maxAscentRate/dt, maxAscentRate/dt);
+thrust = -mass * CONSTRAIN(acc, -maxAscentRate/dt, maxAscentRate/dt);
 ```
 
 ###### Implement lateral position control
-The `lateralPosition` controller is another PID controller that controlls acceleration along the x and y axis. The implemention is shown in the code block below:
+The `lateralPosition` controller is another PID controller that controls acceleration along the x and y axis. The implementation is shown in the code block below:
 
 ``` C++
-  V3F kpPos;
-  kpPos.x = kpPosXY;
-  kpPos.y = kpPosXY;
-  kpPos.z = 0.f;
-     
-  V3F kpVel;
-  kpVel.x = kpVelXY;
-  kpVel.y = kpVelXY;
-  kpVel.z = 0.f;
+V3F kpPos;
+kpPos.x = kpPosXY;
+kpPos.y = kpPosXY;
+kpPos.z = 0.f;
+ 
+V3F kpVel;
+kpVel.x = kpVelXY;
+kpVel.y = kpVelXY;
+kpVel.z = 0.f;
   
-  V3F maxVelCmd;
-  if(velCmd.mag() > maxSpeedXY) {
-    maxVelCmd = velCmd.norm() * maxSpeedXY;
-  }
-  else {
-    maxVelCmd = velCmd;
-  }
+V3F maxVelCmd;
+if(velCmd.mag() > maxSpeedXY) {
+	maxVelCmd = velCmd.norm() * maxSpeedXY;
+}
+else {
+	maxVelCmd = velCmd;
+}
     
-  accelCmd = kpPos * (posCmd - pos) + kpVel * (maxVelCmd - vel) + accelCmd;
+accelCmd = kpPos * (posCmd - pos) + kpVel * (maxVelCmd - vel) + accelCmd;
     
-  if(accelCmd.mag() > maxAccelXY) {
-    accelCmd = accelCmd.norm() * maxAccelXY;
-  }
+if(accelCmd.mag() > maxAccelXY) {
+	accelCmd = accelCmd.norm() * maxAccelXY;
+}
 ```
 
 ###### Implement yaw control
-The `yaw` controller is another P controller that optimizes the quad's yaw between -pi and pi. The implemention can be seen in the code block below:
+The `yaw` controller is another P controller that optimizes the quad's yaw between -pi and pi. The implementation can be seen in the code block below:
 
 ``` C++
-  float yaw_err = 0;
-  if(yawCmd > 0) {
-    yaw_err = fmodf(yawCmd, 2*F_PI) - yaw;
-  }
-  else {
-    yaw_err = -fmodf(yawCmd, 2*F_PI) -yaw;
-  }
+float yaw_err = 0;
+if(yawCmd > 0) {
+	yaw_err = fmodf(yawCmd, 2*F_PI) - yaw;
+}
+else {
+	yaw_err = -fmodf(yawCmd, 2*F_PI) -yaw;
+}
   
-  if(yaw_err > F_PI) {
-    yaw_err -= 2*F_PI;
-  }
-  if(yaw_err < -F_PI) {
-    yaw_err += 2*F_PI;
-  }
+if(yaw_err > F_PI) {
+	yaw_err -= 2*F_PI;
+}
+if(yaw_err < -F_PI) {
+	yaw_err += 2*F_PI;
+}
   
-  yawRateCmd = kpYaw * yaw_err;
+yawRateCmd = kpYaw * yaw_err;
 ```
 
 
@@ -281,7 +281,6 @@ PASS: ABS(Quad.PosFollowErr) was less than 0.500000 for at least 0.800000 second
 ```
 PASS: ABS(Quad.Roll) was less than 0.025000 for at least 0.750000 seconds
 PASS: ABS(Quad.Omega.X) was less than 2.500000 for at least 0.750000 seconds
-
 ```
 
 ###### Scenario 3 - Position Control
@@ -295,7 +294,7 @@ PASS: ABS(Quad2.Pos.X) was less than 0.100000 for at least 1.250000 seconds
 PASS: ABS(Quad2.Yaw) was less than 0.100000 for at least 1.000000 seconds
 ```
 
-###### Scenario 4 - Nonidealialities
+###### Scenario 4 - Nonidealiarlities
 <p align="center">
 <img src="images/scenario4.gif" width="500"/>
 </p>
