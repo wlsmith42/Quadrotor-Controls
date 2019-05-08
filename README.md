@@ -6,8 +6,8 @@
 
  - [Development environment setup](#development-environment-setup)
  - [Simulator walkthrough](#simulator-walkthrough)
- - [Project Rubric] (#project-rubric)
- - [Future Work] (#future-work)
+ - [Project Rubric](#project-rubric)
+ - [Future Work](#future-work)
 
 ## Development Environment Setup ##
 
@@ -236,7 +236,7 @@ yawRateCmd = kpYaw * yaw_err;
 The following equations were used to implement `generateMotorCommands`:
 
 <p align="center">
-<img src="images/moments_force_eq.gif" width="180"/>
+<img src="images/moments_force_eq.gif" width="250"/>
 </p>
 
 Where `F_1` to `F_4` represents the target thrust of each motor, `tao(x, y, z)` are the moments in each direction, `F_t` is the total thrust, `kappa` is the drag/thrust ratio, and `l` is the drone arm length over the square root of two. 
