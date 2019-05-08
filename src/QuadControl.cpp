@@ -47,7 +47,6 @@ void QuadControl::Init()
   maxMotorThrust = config->Get(_config + ".maxMotorThrust", 100);
 #else
   // load params from PX4 parameter system
-  //TODO
   param_get(param_find("MC_PITCH_P"), &Kp_bank);
   param_get(param_find("MC_YAW_P"), &Kp_yaw);
 #endif
@@ -68,13 +67,6 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   // - you can access parts of momentCmd via e.g. momentCmd.x
   // You'll need the arm length parameter L, and the drag/thrust ratio kappa
 
-  ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
-  //cmd.desiredThrustsN[0] = mass * 9.81f / 4.f; // front left
-  //cmd.desiredThrustsN[1] = mass * 9.81f / 4.f; // front right
-  //cmd.desiredThrustsN[2] = mass * 9.81f / 4.f; // rear left
-  //cmd.desiredThrustsN[3] = mass * 9.81f / 4.f; // rear right
-
   float l = L / sqrtf(2.f);
   float targetx = momentCmd.x / l;
   float targety = momentCmd.y / l;
@@ -89,8 +81,6 @@ VehicleCommand QuadControl::GenerateMotorCommands(float collThrustCmd, V3F momen
   cmd.desiredThrustsN[1] = (-targetx + targety - targetz + collThrustCmd)/ 4.f; // front right
   cmd.desiredThrustsN[2] = (targetx - targety - targetz + collThrustCmd)/ 4.f; // rear left
   cmd.desiredThrustsN[3] = (-targetx - targety + targetz + collThrustCmd)/ 4.f; // rear right
-
-  /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return cmd;
 }
@@ -111,14 +101,10 @@ V3F QuadControl::BodyRateControl(V3F pqrCmd, V3F pqr)
 
   V3F momentCmd;
 
-  ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
   V3F rate_error = pqrCmd - pqr;
   V3F ubar = kpPQR * rate_error;
 
   momentCmd = ubar * V3F(Ixx, Iyy, Izz);
-
-  /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return momentCmd;
 }
@@ -145,8 +131,6 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
   V3F pqrCmd;
   Mat3x3F R = attitude.RotationMatrix_IwrtB();
 
-  ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
   if(collThrustCmd > 0) {
     float c = -collThrustCmd / mass;
     float b_x_cmd = CONSTRAIN(accelCmd.x / c, -maxTiltAngle, maxTiltAngle);
@@ -166,7 +150,6 @@ V3F QuadControl::RollPitchControl(V3F accelCmd, Quaternion<float> attitude, floa
   }
 
   pqrCmd.z = 0.0;
-  /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return pqrCmd;
 }
@@ -194,7 +177,6 @@ float QuadControl::AltitudeControl(float posZCmd, float velZCmd, float posZ, flo
   Mat3x3F R = attitude.RotationMatrix_IwrtB();
   float thrust = 0;
 
-  ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
   float z_err = posZCmd - posZ;
   float p = kpPosZ * z_err;
     
@@ -210,8 +192,6 @@ float QuadControl::AltitudeControl(float posZCmd, float velZCmd, float posZ, flo
   float acc = (u_1_bar - CONST_GRAVITY) / b_z;
   
   thrust = -mass * CONSTRAIN(acc, -maxAscentRate/dt, maxAscentRate/dt);
-    
-  /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return thrust;
 }
@@ -244,9 +224,6 @@ V3F QuadControl::LateralPositionControl(V3F posCmd, V3F velCmd, V3F pos, V3F vel
   // Make sure to _add_, not simply replace, the result of your controller
   // to this variable
   V3F accelCmd = accelCmdFF;
-
-  ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
   
   V3F kpPos;
   kpPos.x = kpPosXY;
@@ -272,8 +249,6 @@ V3F QuadControl::LateralPositionControl(V3F posCmd, V3F velCmd, V3F pos, V3F vel
     accelCmd = accelCmd.norm() * maxAccelXY;
   }
 
-  /////////////////////////////// END STUDENT CODE ////////////////////////////
-
   return accelCmd;
 }
 
@@ -291,7 +266,7 @@ float QuadControl::YawControl(float yawCmd, float yaw)
   //  - use the yaw control gain parameter kpYaw
 
   float yawRateCmd=0;
-  ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+
   float yaw_err = 0;
   if(yawCmd > 0) {
     yaw_err = fmodf(yawCmd, 2*F_PI) - yaw;
@@ -308,8 +283,6 @@ float QuadControl::YawControl(float yawCmd, float yaw)
   }
   
   yawRateCmd = kpYaw * yaw_err;
-
-  /////////////////////////////// END STUDENT CODE ////////////////////////////
 
   return yawRateCmd;
 
